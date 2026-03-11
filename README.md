@@ -1,116 +1,309 @@
-The content below is an example project proposal / requirements document. Replace the text below the lines marked "__TODO__" with details specific to your project. Remove the "TODO" lines.
 
-(___TODO__: your project name_)
-
-# Shoppy Shoperson 
+# Study Tracker
 
 ## Overview
 
-(___TODO__: a brief one or two paragraph, high-level description of your project_)
+Study Tracker is a web application designed to help students organize their academic workload and monitor their study habits. Users can create courses for the classes they are taking, add assignments associated with those courses, and log study sessions to track how much time they spend studying.
 
-Remembering what to buy at the grocery store is waaaaay too difficult. Also, shopping for groceries when you're hungry leads to regrettable purchases. Sooo... that's where Shoppy Shoperson comes in!
+The goal of the application is to provide students with a simple tool for managing coursework and staying organized throughout the semester. By tracking assignments and study sessions, students can better understand their study patterns and prepare more effectively for exams and deadlines.
 
-Shoppy Shoperson is a web app that will allow users to keep track of multiple grocery lists. Users can register and login. Once they're logged in, they can create or view their grocery list. For every list that they have, they can add items to the list or cross off items.
+---
 
+# Data Model
 
-## Data Model
+The application will store **Users, Courses, Assignments, and StudySessions**.
 
-(___TODO__: a description of your application's data and their relationships to each other_) 
+Relationships between these entities:
 
-The application will store Users, Lists and Items
+* Users can have multiple courses (via references)
+* Each course can have multiple assignments
+* Each course can have multiple study sessions
 
-* users can have multiple lists (via references)
-* each list can have multiple items (by embedding)
+Users own their courses, and all assignments and study sessions are associated with a course.
 
-(___TODO__: sample documents_)
+---
 
-An Example User:
+# Sample Documents
 
-```javascript
-{
-  username: "shannonshopper",
-  hash: // a password hash,
-  lists: // an array of references to List documents
-}
-```
-
-An Example List with Embedded Items:
+### Example User
 
 ```javascript
 {
-  user: // a reference to a User object
-  name: "Breakfast foods",
-  items: [
-    { name: "pancakes", quantity: "9876", checked: false},
-    { name: "ramen", quantity: "2", checked: true},
-  ],
-  createdAt: // timestamp
+  username: "student123",
+  hash: // password hash
+  courses: [ObjectId("course1"), ObjectId("course2")]
 }
 ```
 
+This represents a registered user of the application.
 
-## [Link to Commented First Draft Schema](db.js) 
+---
 
-(___TODO__: create a first draft of your Schemas in db.js and link to it_)
+### Example Course
 
-## Wireframes
+```javascript
+{
+  user: ObjectId("userId"),
+  title: "Operating Systems",
+  semester: "Spring 2026",
+  createdAt: Date
+}
+```
 
-(___TODO__: wireframes for all of the pages on your site; they can be as simple as photos of drawings or you can use a tool like Balsamiq, Omnigraffle, etc._)
+This represents a course created by a user.
 
-/list/create - page for creating a new shopping list
+---
 
-![list create](documentation/list-create.png)
+### Example Assignment
 
-/list - page for showing all shopping lists
+```javascript
+{
+  course: ObjectId("courseId"),
+  title: "Homework 3",
+  dueDate: Date,
+  completed: false
+}
+```
 
-![list](documentation/list.png)
+Assignments belong to a specific course and track deadlines and completion status.
 
-/list/slug - page for showing specific shopping list
+---
 
-![list](documentation/list-slug.png)
+### Example Study Session
 
-## Site map
+```javascript
+{
+  course: ObjectId("courseId"),
+  date: Date,
+  durationMinutes: 90,
+  notes: "Reviewed lecture slides"
+}
+```
 
-(___TODO__: draw out a site map that shows how pages are related to each other_)
+Study sessions represent blocks of time spent studying for a course.
 
-Here's a [complex example from wikipedia](https://upload.wikimedia.org/wikipedia/commons/2/20/Sitemap_google.jpg), but you can create one without the screenshots, drop shadows, etc. ... just names of pages and where they flow to.
+---
 
-## User Stories or Use Cases
+## [Link to Commented First Draft Schema](db.js)
 
-(___TODO__: write out how your application will be used through [user stories](http://en.wikipedia.org/wiki/User_story#Format) and / or [use cases](https://www.mongodb.com/download-center?jmp=docs&_ga=1.47552679.1838903181.1489282706#previous)_)
+The first draft schema will define the MongoDB models for:
 
-1. as non-registered user, I can register a new account with the site
-2. as a user, I can log in to the site
-3. as a user, I can create a new grocery list
-4. as a user, I can view all of the grocery lists I've created in a single list
-5. as a user, I can add items to an existing grocery list
-6. as a user, I can cross off items in an existing grocery list
+* Users
+* Courses
+* Assignments
+* StudySessions
 
-## Research Topics
+These schemas will be implemented in **db.js** using Mongoose.
 
-(___TODO__: the research topics that you're planning on working on along with their point values... and the total points of research topics listed_)
+Example draft schema:
 
-* (5 points) Integrate user authentication
-    * I'm going to be using passport for user authentication
-    * And account has been made for testing; I'll email you the password
-    * see <code>cs.nyu.edu/~jversoza/ait-final/register</code> for register page
-    * see <code>cs.nyu.edu/~jversoza/ait-final/login</code> for login page
-* (4 points) Perform client side form validation using a JavaScript library
-    * see <code>cs.nyu.edu/~jversoza/ait-final/my-form</code>
-    * if you put in a number that's greater than 5, an error message will appear in the dom
-* (5 points) vue.js
-    * used vue.js as the frontend framework; it's a challenging library to learn, so I've assigned it 5 points
+```javascript
+import mongoose from "mongoose";
 
-10 points total out of 8 required points (___TODO__: addtional points will __not__ count for extra credit_)
+const StudySessionSchema = new mongoose.Schema({
+  date: Date,
+  durationMinutes: Number,
+  notes: String
+});
+
+const AssignmentSchema = new mongoose.Schema({
+  title: String,
+  dueDate: Date,
+  completed: Boolean
+});
+
+const CourseSchema = new mongoose.Schema({
+  title: String,
+  semester: String,
+  assignments: [AssignmentSchema],
+  studySessions: [StudySessionSchema],
+  createdAt: Date
+});
+
+export const Course = mongoose.model("Course", CourseSchema);
+```
+
+---
+
+# Wireframes
+
+The application will include the following pages.
+
+---
+
+### `/courses/create`
+
+Page for creating a new course.
+
+Users can input:
+
+* Course name
+* Semester
+
+![Create Course](documentation/list-create.png)
+
+---
+
+### `/courses`
+
+Page for showing all courses created by the user.
+
+Example layout:
+
+```
+Courses
+
+Operating Systems
+Mathematics of Finance
+Numerical Analysis
+
+Create a New Course
+```
+
+![Courses Page](documentation/list.png)
+
+---
+
+### `/courses/:id`
+
+Page for showing a specific course.
+
+Example layout:
+
+```
+Operating Systems
+
+Assignments
+Homework 3
+Lab 4
+
+Study Sessions
+March 10 — 90 minutes
+March 11 — 60 minutes
+
+Add Assignment
+Log Study Session
+```
+
+![Course Detail](documentation/list-slug.png)
+
+---
+
+# Site Map
+
+```
+Home
+ ├── Courses
+ │    └── Course Detail
+ ├── Create Course
+ ├── Add Assignment
+ └── Log Study Session
+```
+
+---
+
+# User Stories or Use Cases
+
+1. As a student, I want to create courses so that I can organize my classes.
+
+2. As a student, I want to add assignments to courses so that I can track upcoming deadlines.
+
+3. As a student, I want to log study sessions so that I can track how much time I spend studying.
+
+4. As a student, I want to mark assignments as completed so that I know which work is finished.
+
+5. As a student, I want to view all of my courses and assignments so that I stay organized throughout the semester.
+
+---
+
+# Research Topics
+
+Total: **10 points**
+
+### (3 points) Jest Unit Testing
+
+Jest is a JavaScript testing framework used to write automated tests for application logic and route handlers. It will be used in this project to test important functionality such as course creation and assignment management.
+
+Possible solutions:
+
+* Jest
+* Mocha
+* Jasmine
+
+---
+
+### (3 points) Chart.js
+
+Chart.js is a JavaScript library used for creating charts and graphs. It will be used to visualize study session data, allowing users to see how much time they spend studying per course.
+
+Possible solutions:
+
+* Chart.js
+* D3.js
+* Google Charts
+
+---
+
+### (2 points) Tailwind CSS
+
+Tailwind CSS is a utility-first CSS framework that allows rapid development of responsive interfaces. It will be used to design the user interface of the Study Tracker application.
+
+Possible solutions:
+
+* Tailwind CSS
+* Bootstrap
+* Semantic UI
+
+---
+
+### (2 points) Day.js
+
+Day.js is a lightweight JavaScript library for working with dates and times. It will be used to manage assignment deadlines and study session timestamps.
+
+Possible solutions:
+
+* Day.js
+* Moment.js
+
+---
+
+# [Link to Initial Main Project File](app.mjs)
+
+The initial Express skeleton application will be located in:
+
+```
+app.mjs
+```
+
+Example skeleton:
+
+```javascript
+import express from "express";
+import mongoose from "mongoose";
+
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("Study Tracker");
+});
+
+app.listen(3000);
+```
+
+---
+
+# Annotations / References Used
+
+1. Express.js Documentation
+   [https://expressjs.com/](https://expressjs.com/)
+
+2. MongoDB / Mongoose Documentation
+   [https://mongoosejs.com/](https://mongoosejs.com/)
+
+3. Chart.js Documentation
+   [https://www.chartjs.org/](https://www.chartjs.org/)
+
+4. Tailwind CSS Documentation
+   [https://tailwindcss.com/](https://tailwindcss.com/)
 
 
-## [Link to Initial Main Project File](app.js) 
-
-(___TODO__: create a skeleton Express application with a package.json, app.js, views folder, etc. ... and link to your initial app.js_)
-
-## Annotations / References Used
-
-(___TODO__: list any tutorials/references/etc. that you've based your code off of_)
-
-1. [passport.js authentication docs](http://passportjs.org/docs) - (add link to source code that was based on this)
-2. [tutorial on vue.js](https://vuejs.org/v2/guide/) - (add link to source code that was based on this)
