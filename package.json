@@ -1,0 +1,11 @@
+{
+  "name": "study-tracker",
+  "version": "1.0.0",
+  "description": "AIT Final Project",
+  "main": "app.mjs",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0"
+  }
+}
