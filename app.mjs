@@ -4,13 +4,15 @@ import { Course } from "./db.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/studytracker";
+
+// MongoDB Atlas connection
+const MONGO_URI = process.env.MONGO_URI || "mongodb+srv://ba2411_db_user:xbuFju6804SoUf86@cluster0.iq6iaxv.mongodb.net/studytracker";
 
 app.use(express.urlencoded({ extended: true }));
 
 mongoose.connect(MONGO_URI)
 	.then(() => {
-		console.log("Connected to MongoDB");
+		console.log("Connected to MongoDB Atlas");
 	})
 	.catch((err) => {
 		console.log("MongoDB connection error:", err);
@@ -68,6 +70,7 @@ app.post("/courses/create", async (req, res) => {
 
 		res.redirect("/courses");
 	} catch (err) {
+		console.error(err);
 		res.status(500).send(`
 			<h1>Server Error</h1>
 			<p>Could not create course.</p>
@@ -95,6 +98,7 @@ app.get("/courses", async (req, res) => {
 			<p><a href="/">Home</a></p>
 		`);
 	} catch (err) {
+		console.error(err);
 		res.status(500).send(`
 			<h1>Server Error</h1>
 			<p>Could not load courses.</p>
