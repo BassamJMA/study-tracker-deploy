@@ -1,23 +1,46 @@
 import mongoose from "mongoose";
 
 const StudySessionSchema = new mongoose.Schema({
-	date: Date,
-	durationMinutes: Number,
-	notes: String
+	date: {
+		type: Date
+	},
+	durationMinutes: {
+		type: Number
+	},
+	notes: {
+		type: String
+	}
 });
 
 const AssignmentSchema = new mongoose.Schema({
-	title: String,
-	dueDate: Date,
-	completed: Boolean
+	title: {
+		type: String,
+		required: true
+	},
+	dueDate: {
+		type: Date
+	},
+	completed: {
+		type: Boolean,
+		default: false
+	}
 });
 
 const CourseSchema = new mongoose.Schema({
-	title: String,
-	semester: String,
+	title: {
+		type: String,
+		required: true
+	},
+	semester: {
+		type: String,
+		required: true
+	},
 	assignments: [AssignmentSchema],
 	studySessions: [StudySessionSchema],
-	createdAt: Date
+	createdAt: {
+		type: Date,
+		default: Date.now
+	}
 });
 
 export const Course = mongoose.model("Course", CourseSchema);
